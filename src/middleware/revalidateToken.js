@@ -17,7 +17,7 @@ export const revalidateToken = (req = request, res = response, next) => {
     delete payload.iat;
     delete payload.exp;
 
-    req.body = payload;
+    req.body.token = payload;
   } catch (error) {
     return res.status(401).send({
       ok: false,
