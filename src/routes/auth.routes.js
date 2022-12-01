@@ -161,7 +161,7 @@ router.post("/api/auth/login", (req, res) => {
 
 // RENUEVA EL TOKEN
 router.post("/api/renew", revalidateToken, async (req, res) => {
-  const payloadToken = req.body;
+  const payloadToken = req.body.token;
   const token = generateJWT(payloadToken);
   const query = "SELECT secure_url FROM FOTO_USUARIO WHERE idUsuario = ?";
 
@@ -201,7 +201,7 @@ router.get("/api/auth/mostrarUsuario/:id", (req, res) => {
 });
 
 //ACTUALIZAR USUARIO
-router.put("/api/auth/actualizarUsuario/:id", (req, res) => {
+router.put("/api/auth/actualizarUsuario/:id", revalidateToken, (req, res) => {
   const idUsuario = req.params.id;
   const {
     nombre,
@@ -226,16 +226,19 @@ router.put("/api/auth/actualizarUsuario/:id", (req, res) => {
 
   connection.query(sql, arrayData, function (error, results) {
     if (error) {
-      console.log(error);
       return res.status(500).json({
         ok: false,
         msg: "Algo no salió bien",
       });
     }
+
+    const token = generateJWT({ ...req.body.token, ...data });
+
     res.status(200).json({
       ok: true,
       message: "Usuario Actualizado",
       user: { ...data },
+      token
     });
   });
 });
@@ -302,7 +305,6 @@ router.put("/api/auth/uploadPhoto/:id", validatePhoto, async (req, res) => {
       }
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       ok: false,
       msg: "Ups, algo salió mal",
