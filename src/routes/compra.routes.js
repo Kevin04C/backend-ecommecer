@@ -12,7 +12,7 @@ router.get("/api/ordersHistory/:id", cache, (req, res) => {
     if (error) {
       throw error;
     } else {
-      res.send({ok: true, orders: result});
+      res.send({ ok: true, orders: result });
     }
   });
 });
@@ -27,12 +27,13 @@ router.post("/api/compras/:id", (req, res) => {
   let sql = "INSERT INTO COMPRA_PRODUCTO_USUARIO SET ?";
   connection.query(sql, data, function (error, result) {
     if (error) {
-      throw error;
-    } else {
-      console.log(result);
-      data.id = result.insertId;
-      res.send({ ok: true, ...data });
+      return res.status(500).json({
+        ok: false,
+        msg: "Hubo un error",
+      });
     }
+    data.id = result.insertId;
+    res.send({ ok: true, ...data });
   });
 });
 
